@@ -1,4 +1,6 @@
 .superpowers/
+.worktrees/
+work/
 outputs/
 .gradle/
 .idea/
