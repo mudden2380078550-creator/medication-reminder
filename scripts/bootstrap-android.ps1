@@ -16,8 +16,12 @@ $toolchainRoot = Join-Path $projectRoot 'work/toolchain'
 $jdkRoot = Join-Path $toolchainRoot 'jdk'
 $gradleRoot = Join-Path $toolchainRoot 'gradle-9.4.1'
 $sdkRoot = Join-Path $toolchainRoot 'android-sdk'
+$androidUserHome = Join-Path $toolchainRoot 'android-user-home'
+$avdRoot = Join-Path $toolchainRoot 'android-avd'
 
-New-Item -ItemType Directory -Force -Path $toolchainRoot, $sdkRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $toolchainRoot, $sdkRoot, $androidUserHome | Out-Null
+$env:ANDROID_USER_HOME = $androidUserHome
+$env:ANDROID_EMULATOR_HOME = $androidUserHome
 
 function Get-Download {
     param([string]$Uri, [string]$Path)
@@ -163,7 +167,7 @@ $env:Path = "$(Join-Path $jdkRoot 'bin')$([System.IO.Path]::PathSeparator)$env:P
 $gradleZip = Join-Path $toolchainRoot 'gradle-9.4.1-bin.zip'
  $gradle = Join-Path $gradleRoot 'bin/gradle.bat'
 if (Test-Path -LiteralPath $gradle) {
-    $gradleVersion = & $gradle --version 2>&1
+    $gradleVersion = & cmd.exe /d /c ('"' + $gradle + '" --version 2>&1')
     $gradleVersionText = $gradleVersion -join "`n"
     if ($LASTEXITCODE -ne 0 -or $gradleVersionText -notmatch '(?m)^Gradle 9\.4\.1$') {
         throw 'The installed Gradle distribution is not Gradle 9.4.1.'
@@ -206,6 +210,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Android SDK license acceptance failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Android SDK package installation failed.' }
 
 if ($InstallEmulator) {
+    New-Item -ItemType Directory -Force -Path $avdRoot | Out-Null
+    $env:ANDROID_AVD_HOME = $avdRoot
     Install-SdkArchive `
         -ArchiveUri 'https://dl.google.com/android/repository/emulator-windows_x64-15917651.zip' `
         -ArchiveSha1 '54fa750822ff462d57e04fc8e98e60f08df2bb61' `
@@ -229,12 +235,23 @@ $sdkPropertiesPath = Join-Path $projectRoot 'local.properties'
 $sdkPropertyValue = $sdkRoot.Replace('\', '\\').Replace(':', '\:')
 Set-Content -LiteralPath $sdkPropertiesPath -Value "sdk.dir=$sdkPropertyValue" -NoNewline
 
-& $gradle --no-daemon wrapper --gradle-version 9.4.1 --distribution-type bin
-if ($LASTEXITCODE -ne 0) { throw 'Gradle wrapper generation failed.' }
+$wrapper = Join-Path $projectRoot 'gradlew.bat'
+$wrapperProperties = Join-Path $projectRoot 'gradle/wrapper/gradle-wrapper.properties'
+if (-not (Test-Path -LiteralPath $wrapper) -or -not (Test-Path -LiteralPath $wrapperProperties)) {
+    throw 'The committed Gradle wrapper files are missing.'
+}
+$wrapperPropertiesText = Get-Content -LiteralPath $wrapperProperties -Raw
+if ($wrapperPropertiesText -notmatch 'distributionUrl=.*gradle-9\.4\.1-bin\.zip' -or
+    $wrapperPropertiesText -notmatch "distributionSha256Sum=$gradleSha256") {
+    throw 'The committed Gradle wrapper is not pinned to Gradle 9.4.1 with the required checksum.'
+}
+$env:GRADLE_USER_HOME = Join-Path $toolchainRoot 'gradle-user-home'
+$wrapperVersion = & cmd.exe /d /c ('"' + $wrapper + '" --version 2>&1')
+if ($LASTEXITCODE -ne 0) { throw 'The committed Gradle wrapper could not report its version.' }
 
 $java = Join-Path $jdkRoot 'bin/java.exe'
 $adb = Join-Path $sdkRoot 'platform-tools/adb.exe'
 & cmd.exe /d /c "`"$java`" -version 2>&1"
 & $sdkManager --version
 & $adb version
-& $gradle --version
+$wrapperVersion
