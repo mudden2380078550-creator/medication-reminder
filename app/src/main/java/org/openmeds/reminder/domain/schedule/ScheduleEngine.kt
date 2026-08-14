@@ -25,6 +25,8 @@ class ScheduleEngine {
         if (fromInclusive == toExclusive) return emptyList()
         return occurrencesAfter(schedule, fromInclusive.minusNanos(1), zoneId)
             .takeWhile { it < toExclusive }
+            .distinct()
+            .sorted()
             .toList()
     }
 

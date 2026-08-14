@@ -5,7 +5,7 @@ import java.time.LocalDate
 data class MedicationPlanInput(
     val name: String,
     val unit: String,
-    val stock: MilliUnits,
+    val stock: SignedMilliUnits,
     val note: String?,
     val dose: MilliUnits,
     val rule: ScheduleRule,

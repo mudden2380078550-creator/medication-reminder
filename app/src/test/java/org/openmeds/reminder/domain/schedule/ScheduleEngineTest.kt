@@ -5,6 +5,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.openmeds.reminder.domain.model.MedicationSchedule
+import org.openmeds.reminder.domain.model.MedicationPlanInput
 import org.openmeds.reminder.domain.model.MilliUnits
 import org.openmeds.reminder.domain.model.ScheduleRule
 import org.openmeds.reminder.domain.model.SignedMilliUnits
@@ -195,6 +196,25 @@ class ScheduleEngineTest {
     }
 
     @Test
+    fun wholeDayDstGapDeduplicatesInstantsAcrossLogicalDates() {
+        val schedule = fixtureDaily(
+            times = listOf(LocalTime.of(9, 0)),
+            startDate = LocalDate.parse("2011-12-30"),
+            endDate = LocalDate.parse("2011-12-31")
+        )
+
+        assertEquals(
+            listOf(Instant.parse("2011-12-30T19:00:00Z")),
+            engine.occurrencesBetween(
+                schedule,
+                Instant.parse("2011-12-30T00:00:00Z"),
+                Instant.parse("2011-12-31T00:00:00Z"),
+                ZoneId.of("Pacific/Apia")
+            )
+        )
+    }
+
+    @Test
     fun nextOccurrenceStrictlyExcludesAnEqualInstant() {
         val schedule = fixtureDaily(times = listOf(LocalTime.of(9, 0)))
 
@@ -241,10 +261,54 @@ class ScheduleEngineTest {
     }
 
     @Test
+    fun milliUnitsRejectsMoreThanThreeDecimalPlaces() {
+        assertThrows(IllegalArgumentException::class.java) {
+            MilliUnits.fromDecimal("1.0001")
+        }
+    }
+
+    @Test
+    fun milliUnitsRejectsMalformedDecimalText() {
+        assertThrows(IllegalArgumentException::class.java) {
+            MilliUnits.fromDecimal("one-and-a-half")
+        }
+    }
+
+    @Test
+    fun milliUnitsRejectsPositiveValueAboveLongRange() {
+        assertThrows(ArithmeticException::class.java) {
+            MilliUnits.fromDecimal("9223372036854775.808")
+        }
+    }
+
+    @Test
+    fun signedMilliUnitsRejectsNegativeValueBelowLongRange() {
+        assertThrows(ArithmeticException::class.java) {
+            SignedMilliUnits.fromDecimal("-9223372036854775.809")
+        }
+    }
+
+    @Test
     fun signedMilliUnitsSubtractionRejectsAnUnrepresentableResult() {
         assertThrows(ArithmeticException::class.java) {
             SignedMilliUnits(Long.MIN_VALUE) - MilliUnits(1L)
         }
+    }
+
+    @Test
+    fun medicationPlanInputPreservesNegativeOpeningStock() {
+        val input = MedicationPlanInput(
+            name = "Example",
+            unit = "tablet",
+            stock = SignedMilliUnits(-500L),
+            note = null,
+            dose = MilliUnits(1_000L),
+            rule = ScheduleRule.Daily(listOf(LocalTime.of(9, 0))),
+            startDate = LocalDate.parse("2026-08-01"),
+            endDate = null
+        )
+
+        assertEquals(-500L, input.stock.value)
     }
 
     private fun fixtureWeekly(days: Set<DayOfWeek>, time: LocalTime): MedicationSchedule =
