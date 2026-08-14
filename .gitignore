@@ -1,9 +1,6 @@
-.superpowers/
-.worktrees/
-work/
-outputs/
 .gradle/
+.kotlin/
 .idea/
 local.properties
-build/
 **/build/
+work/
