@@ -1,0 +1,7 @@
+.superpowers/
+outputs/
+.gradle/
+.idea/
+local.properties
+build/
+**/build/
