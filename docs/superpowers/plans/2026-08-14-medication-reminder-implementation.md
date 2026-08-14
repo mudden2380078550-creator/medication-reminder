@@ -107,7 +107,7 @@ $sdkUri = 'https://dl.google.com/android/repository/commandlinetools-win-1585990
 $sdkSha256 = '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a'
 ~~~
 
-The script verifies both fixed checksums, installs platform-tools, platforms;android-37.0, build-tools;36.0.0, emulator, and system-images;android-37.0;google_apis;x86_64, accepts the Android SDK license only after the user authorizes the download, creates the AnxinApi37 AVD, and writes local.properties with sdk.dir pointing at work/toolchain/android-sdk. The `.0` suffix is the Android SDK repository package identifier for API 37; the app configuration remains compileSdk/targetSdk 37. Add work/ to .gitignore.
+The script verifies both fixed checksums and, by default, installs the build-required platform-tools, platforms;android-37.0, and build-tools;36.0.0 packages. An explicit `-InstallEmulator` switch additionally installs emulator and system-images;android-37.0;google_apis;x86_64 and creates the AnxinApi37 AVD; the 2.2 GB system image is deferred to the device-QA gate rather than blocking ordinary builds. Accept Android SDK licenses only after the user authorizes the download. Write local.properties with sdk.dir pointing at work/toolchain/android-sdk. The `.0` suffix is the Android SDK repository package identifier for API 37; the app configuration remains compileSdk/targetSdk 37. Add work/ to .gitignore.
 
 Run: powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-android.ps1
 Expected: Java 17, sdkmanager, adb, and Gradle 9.4.1 version lines with no checksum error.
@@ -899,7 +899,7 @@ Select-String -Path '.\app\build\intermediates\merged_manifests\debug\processDeb
 
 Expected: all tests and lint pass; release APK exists; Select-String returns no match.
 
-scripts/run-device-matrix.ps1 installs system-images;android-26;google_apis;x86_64, system-images;android-31;google_apis;x86_64, system-images;android-33;google_apis;x86_64, system-images;android-34;google_apis;x86_64, and system-images;android-37;google_apis;x86_64; it creates one AVD per API, runs the instrumentation suite serially, and stops each emulator before starting the next. Record results in docs/verification/device-matrix.md for: clearing recent tasks, lock-screen alarm, reboot restore, denied permission degradation, +10/+20/+30 retries, +40 unconfirmed state, 200% font, TalkBack, same-minute medicines, and force-stop recovery after reopening. A blank or unrun row fails the release gate.
+scripts/run-device-matrix.ps1 installs system-images;android-26;google_apis;x86_64, system-images;android-31;google_apis;x86_64, system-images;android-33;google_apis;x86_64, system-images;android-34;google_apis;x86_64, and system-images;android-37.0;google_apis;x86_64; it creates one AVD per API, runs the instrumentation suite serially, and stops each emulator before starting the next. Record results in docs/verification/device-matrix.md for: clearing recent tasks, lock-screen alarm, reboot restore, denied permission degradation, +10/+20/+30 retries, +40 unconfirmed state, 200% font, TalkBack, same-minute medicines, and force-stop recovery after reopening. A blank or unrun row fails the release gate.
 
 - [ ] **Step 6: Copy the release APK to outputs and commit**
 
