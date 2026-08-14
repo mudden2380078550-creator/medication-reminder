@@ -107,7 +107,7 @@ $sdkUri = 'https://dl.google.com/android/repository/commandlinetools-win-1585990
 $sdkSha256 = '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a'
 ~~~
 
-The script verifies both fixed checksums, installs platform-tools, platforms;android-37, build-tools;36.0.0, emulator, and system-images;android-37;google_apis;x86_64, accepts the Android SDK license only after the user authorizes the download, creates the AnxinApi37 AVD, and writes local.properties with sdk.dir pointing at work/toolchain/android-sdk. Add work/ to .gitignore.
+The script verifies both fixed checksums, installs platform-tools, platforms;android-37.0, build-tools;36.0.0, emulator, and system-images;android-37.0;google_apis;x86_64, accepts the Android SDK license only after the user authorizes the download, creates the AnxinApi37 AVD, and writes local.properties with sdk.dir pointing at work/toolchain/android-sdk. The `.0` suffix is the Android SDK repository package identifier for API 37; the app configuration remains compileSdk/targetSdk 37. Add work/ to .gitignore.
 
 Run: powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-android.ps1
 Expected: Java 17, sdkmanager, adb, and Gradle 9.4.1 version lines with no checksum error.
