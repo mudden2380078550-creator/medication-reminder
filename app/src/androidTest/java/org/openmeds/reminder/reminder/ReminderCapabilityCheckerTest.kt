@@ -13,7 +13,7 @@ class ReminderCapabilityCheckerTest {
     @Test
     fun snapshotReportsAllCapabilitiesWithoutCrashing() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val snapshot = ReminderCapabilityChecker(context).snapshot()
+        val snapshot = ReminderCapabilityChecker(context).snapshot.value
         assertNotNull(snapshot.notifications)
         assertNotNull(snapshot.exactAlarms)
         assertNotNull(snapshot.fullScreen)
