@@ -59,6 +59,8 @@ private class ScreenFakeRepository : MedicationRepository {
     override suspend fun schedule(id: Long): MedicationSchedule? = null
     override suspend fun event(id: Long): DoseEvent? = null
     override suspend fun pendingEvents(): List<DoseEvent> = emptyList()
+    override suspend fun allEvents(): List<DoseEvent> = emptyList()
+    override suspend fun eventsForMedicationBetween(medicationId: Long, from: Instant, to: Instant): List<DoseEvent> = emptyList()
     override suspend fun insertDoseEventIfAbsent(scheduleId: Long, scheduledAt: Instant): DoseEvent? = null
     override suspend fun markUnconfirmedIfActionable(eventId: Long, at: Instant) = Unit
     override suspend fun setReminderCount(eventId: Long, count: Int) = Unit

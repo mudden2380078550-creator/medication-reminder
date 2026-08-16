@@ -40,6 +40,9 @@ interface DoseEventDao {
     @Query("SELECT * FROM dose_event WHERE scheduleId = :scheduleId AND scheduledAtEpochMilli = :scheduledAtEpochMilli LIMIT 1")
     suspend fun byScheduleAndTime(scheduleId: Long, scheduledAtEpochMilli: Long): DoseEventEntity?
 
+    @Query("SELECT * FROM dose_event ORDER BY scheduledAtEpochMilli DESC")
+    suspend fun all(): List<DoseEventEntity>
+
     @Query("SELECT * FROM dose_event WHERE medicationId = :medicationId AND scheduledAtEpochMilli >= :fromEpochMilli AND scheduledAtEpochMilli < :toEpochMilli")
     suspend fun forMedicationBetween(medicationId: Long, fromEpochMilli: Long, toEpochMilli: Long): List<DoseEventEntity>
 }

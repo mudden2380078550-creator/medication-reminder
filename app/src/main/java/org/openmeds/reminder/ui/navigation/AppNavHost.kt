@@ -21,8 +21,12 @@ import androidx.navigation.compose.rememberNavController
 import org.openmeds.reminder.AppContainer
 import org.openmeds.reminder.ui.editor.MedicationEditorScreen
 import org.openmeds.reminder.ui.editor.MedicationEditorViewModel
+import org.openmeds.reminder.ui.history.HistoryScreen
+import org.openmeds.reminder.ui.history.HistoryViewModel
 import org.openmeds.reminder.ui.home.HomeScreen
 import org.openmeds.reminder.ui.home.HomeViewModel
+import org.openmeds.reminder.ui.settings.SettingsScreen
+import org.openmeds.reminder.ui.settings.SettingsViewModel
 
 const val EDITOR_ROUTE = "editor"
 
@@ -61,8 +65,15 @@ composable(AppDestination.HOME.route) {
 HomeScreen(state = homeViewModel.state.collectAsState().value, onConfirmNextDose = homeViewModel::confirmNextDose, onAddMedication = { navController.navigate(EDITOR_ROUTE) }, onMedicationClick = { id -> navController.navigate("$EDITOR_ROUTE/$id") })
 }
 composable(AppDestination.MEDICINES.route) { PlaceholderScreen("药箱") }
-composable(AppDestination.HISTORY.route) { PlaceholderScreen("记录") }
-composable(AppDestination.SETTINGS.route) { PlaceholderScreen("设置") }
+composable(AppDestination.HISTORY.route) {
+    val viewModel = remember { HistoryViewModel(container.medicationRepository, container.reminderOrchestrator, container.zoneProvider) }
+    val historyState by viewModel.state.collectAsState()
+    HistoryScreen(state = historyState, onCorrect = viewModel::correct)
+}
+composable(AppDestination.SETTINGS.route) {
+    val viewModel = remember { SettingsViewModel(container.reminderPreferences) }
+    SettingsScreen(viewModel = viewModel)
+}
 composable(EDITOR_ROUTE) {
     MedicationEditorScreen(
         viewModel = remember {

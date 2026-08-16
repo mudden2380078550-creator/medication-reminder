@@ -35,6 +35,10 @@ interface MedicationRepository {
 
     suspend fun pendingEvents(): List<DoseEvent>
 
+    suspend fun allEvents(): List<DoseEvent>
+
+    suspend fun eventsForMedicationBetween(medicationId: Long, from: Instant, to: Instant): List<DoseEvent>
+
     suspend fun insertDoseEventIfAbsent(scheduleId: Long, scheduledAt: Instant): DoseEvent?
 
     suspend fun markUnconfirmedIfActionable(eventId: Long, at: Instant)

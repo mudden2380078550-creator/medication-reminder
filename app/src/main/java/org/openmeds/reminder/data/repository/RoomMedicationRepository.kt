@@ -133,6 +133,20 @@ class RoomMedicationRepository(
     override suspend fun pendingEvents(): List<DoseEvent> =
         doseEventDao.actionablePending().map { it.toDomain() }
 
+    override suspend fun allEvents(): List<DoseEvent> =
+        doseEventDao.all().map { it.toDomain() }
+
+    override suspend fun eventsForMedicationBetween(
+        medicationId: Long,
+        from: Instant,
+        to: Instant
+    ): List<DoseEvent> =
+        doseEventDao.forMedicationBetween(
+            medicationId,
+            from.toEpochMilli(),
+            to.toEpochMilli()
+        ).map { it.toDomain() }
+
     override suspend fun insertDoseEventIfAbsent(scheduleId: Long, scheduledAt: Instant): DoseEvent? =
         database.withTransaction {
             val existing = doseEventDao.byScheduleAndTime(scheduleId, scheduledAt.toEpochMilli())

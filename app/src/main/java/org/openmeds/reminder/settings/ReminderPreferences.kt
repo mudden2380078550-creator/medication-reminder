@@ -17,14 +17,24 @@ data class ReminderSettings(
     val lowStockTime: LocalTime = LocalTime.of(9, 0)
 )
 
+interface ReminderPreferences {
+    val flow: Flow<ReminderSettings>
+
+    suspend fun updateSound(enabled: Boolean)
+
+    suspend fun updateVibration(enabled: Boolean)
+
+    suspend fun updateLowStockTime(time: LocalTime)
+}
+
 private val Context.reminderDataStore by preferencesDataStore(
     name = "reminder_settings",
     scope = CoroutineScope(Dispatchers.IO)
 )
 
-class ReminderPreferences(private val context: Context) {
+class DataStoreReminderPreferences(private val context: Context) : ReminderPreferences {
 
-    val flow: Flow<ReminderSettings> = context.reminderDataStore.data.map { prefs ->
+    override val flow: Flow<ReminderSettings> = context.reminderDataStore.data.map { prefs ->
         ReminderSettings(
             soundEnabled = prefs[KEY_SOUND] ?: true,
             vibrationEnabled = prefs[KEY_VIBRATION] ?: true,
@@ -34,15 +44,15 @@ class ReminderPreferences(private val context: Context) {
         )
     }
 
-    suspend fun updateSound(enabled: Boolean) {
+    override suspend fun updateSound(enabled: Boolean) {
         context.reminderDataStore.edit { it[KEY_SOUND] = enabled }
     }
 
-    suspend fun updateVibration(enabled: Boolean) {
+    override suspend fun updateVibration(enabled: Boolean) {
         context.reminderDataStore.edit { it[KEY_VIBRATION] = enabled }
     }
 
-    suspend fun updateLowStockTime(time: LocalTime) {
+    override suspend fun updateLowStockTime(time: LocalTime) {
         context.reminderDataStore.edit { it[KEY_LOW_STOCK_MINUTES] = time.hour * 60 + time.minute }
     }
 

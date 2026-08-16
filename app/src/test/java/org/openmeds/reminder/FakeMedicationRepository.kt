@@ -142,6 +142,15 @@ class FakeMedicationRepository : MedicationRepository {
         events.values.filter { it.state == DoseState.PENDING || it.state == DoseState.SNOOZED }
             .sortedBy { it.scheduledAt }
 
+    override suspend fun allEvents(): List<DoseEvent> =
+        events.values.sortedByDescending { it.scheduledAt }
+
+    override suspend fun eventsForMedicationBetween(medicationId: Long, from: Instant, to: Instant): List<DoseEvent> =
+        events.values.filter {
+            it.medicationId == medicationId && it.scheduledAt.toEpochMilli() >= from.toEpochMilli() &&
+                it.scheduledAt.toEpochMilli() < to.toEpochMilli()
+        }
+
     override suspend fun insertDoseEventIfAbsent(scheduleId: Long, scheduledAt: Instant): DoseEvent? {
         val schedule = schedules[scheduleId] ?: return null
         val existing = events.values.firstOrNull { it.scheduleId == scheduleId && it.scheduledAt == scheduledAt }
