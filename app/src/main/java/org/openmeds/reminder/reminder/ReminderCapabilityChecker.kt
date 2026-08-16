@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 data class ReminderCapabilitySnapshot(
     val notifications: Boolean,
@@ -15,17 +17,14 @@ data class ReminderCapabilitySnapshot(
     val batteryRestricted: Boolean
 )
 
-class ReminderCapabilityChecker(private val context: Context) {
+class ReminderCapabilityChecker(private val context: Context) : ReminderCapabilitySource {
 
-    fun snapshot(): ReminderCapabilitySnapshot {
-        val notifications = Build.VERSION.SDK_INT < 33 ||
-            context.getSystemService(NotificationManager::class.java).areNotificationsEnabled()
-        return ReminderCapabilitySnapshot(
-            notifications = notifications,
-            exactAlarms = canScheduleExactAlarms(),
-            fullScreen = hasFullScreenAccess(),
-            batteryRestricted = isBatteryRestricted()
-        )
+    private val mutableSnapshot = MutableStateFlow(computeSnapshot())
+
+    override val snapshot: StateFlow<ReminderCapabilitySnapshot> = mutableSnapshot
+
+    fun refresh() {
+        mutableSnapshot.value = computeSnapshot()
     }
 
     fun canScheduleExactAlarms(): Boolean =
@@ -35,13 +34,16 @@ class ReminderCapabilityChecker(private val context: Context) {
             true
         }
 
-    fun exactAlarmDegraded(): Boolean = !canScheduleExactAlarms()
-
-    private fun hasFullScreenAccess(): Boolean =
-        context.checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT) == PackageManager.PERMISSION_GRANTED
-
-    private fun isBatteryRestricted(): Boolean {
-        val powerManager = context.getSystemService(PowerManager::class.java)
-        return !powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    private fun computeSnapshot(): ReminderCapabilitySnapshot {
+        val notifications = Build.VERSION.SDK_INT < 33 ||
+            context.getSystemService(NotificationManager::class.java).areNotificationsEnabled()
+        return ReminderCapabilitySnapshot(
+            notifications = notifications,
+            exactAlarms = canScheduleExactAlarms(),
+            fullScreen = context.checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT) ==
+                PackageManager.PERMISSION_GRANTED,
+            batteryRestricted = !context.getSystemService(PowerManager::class.java)
+                .isIgnoringBatteryOptimizations(context.packageName)
+        )
     }
 }

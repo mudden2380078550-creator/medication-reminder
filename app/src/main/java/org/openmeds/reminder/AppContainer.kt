@@ -18,6 +18,7 @@ import org.openmeds.reminder.reminder.ReminderScheduler
 import org.openmeds.reminder.reminder.ScheduleEventPlanner
 import org.openmeds.reminder.reminder.SystemZoneProvider
 import org.openmeds.reminder.reminder.ZoneProvider
+import org.openmeds.reminder.settings.ReminderPreferences
 
 class AppContainer(context: Context) {
     private val database: AppDatabase = Room.databaseBuilder(
@@ -39,6 +40,8 @@ class AppContainer(context: Context) {
     val zoneProvider: ZoneProvider = SystemZoneProvider()
 
     val inventoryForecaster: InventoryForecaster = InventoryForecaster(scheduleEngine)
+
+    val reminderPreferences: ReminderPreferences = ReminderPreferences(context)
 
     val pendingIntentFactory: PendingIntentFactory = PendingIntentFactory()
 

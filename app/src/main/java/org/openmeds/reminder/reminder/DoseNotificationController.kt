@@ -35,7 +35,7 @@ class DoseNotificationController(
                 .setContentTitle(if (names.size == 1) "该服用 ${names.first()} 了" else "该服用多种药了")
                 .setContentText(names.joinToString("、"))
                 .setContentIntent(openActivityIntent(epochMinute))
-            if (capabilityChecker.snapshot().fullScreen) {
+            if (capabilityChecker.snapshot.value.fullScreen) {
                 builder.setFullScreenIntent(openActivityIntent(epochMinute), true)
             }
             for (event in events) {
