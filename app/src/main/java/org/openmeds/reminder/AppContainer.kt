@@ -2,6 +2,8 @@ package org.openmeds.reminder
 
 import android.content.Context
 import androidx.room.Room
+import org.openmeds.reminder.backup.BackupCodec
+import org.openmeds.reminder.backup.BackupService
 import org.openmeds.reminder.data.db.AppDatabase
 import org.openmeds.reminder.data.repository.MedicationRepository
 import org.openmeds.reminder.data.repository.RoomMedicationRepository
@@ -43,6 +45,8 @@ class AppContainer(context: Context) {
     val inventoryForecaster: InventoryForecaster = InventoryForecaster(scheduleEngine)
 
     val reminderPreferences: ReminderPreferences = DataStoreReminderPreferences(context)
+
+    val backupService: BackupService = BackupService(context, medicationRepository, BackupCodec())
 
     val pendingIntentFactory: PendingIntentFactory = PendingIntentFactory()
 

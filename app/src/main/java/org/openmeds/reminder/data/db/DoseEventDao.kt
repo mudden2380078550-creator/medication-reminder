@@ -45,4 +45,7 @@ interface DoseEventDao {
 
     @Query("SELECT * FROM dose_event WHERE medicationId = :medicationId AND scheduledAtEpochMilli >= :fromEpochMilli AND scheduledAtEpochMilli < :toEpochMilli")
     suspend fun forMedicationBetween(medicationId: Long, fromEpochMilli: Long, toEpochMilli: Long): List<DoseEventEntity>
+
+    @Query("DELETE FROM dose_event")
+    suspend fun clearAll()
 }

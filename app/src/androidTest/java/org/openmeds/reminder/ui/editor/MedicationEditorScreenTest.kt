@@ -71,4 +71,10 @@ private class ScreenFakeRepository : MedicationRepository {
     override suspend fun stockTransactions(eventId: Long): List<StockTransaction> = emptyList()
     override suspend fun stockTransactionsForMedication(medicationId: Long): List<StockTransaction> = emptyList()
     override suspend fun insertFixtureEvent(stock: MilliUnits, dose: MilliUnits): Long = 1L
+    override suspend fun replaceAll(
+        medications: List<Medication>,
+        schedules: List<MedicationSchedule>,
+        events: List<DoseEvent>,
+        transactions: List<StockTransaction>
+    ) = Unit
 }

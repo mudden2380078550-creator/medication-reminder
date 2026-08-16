@@ -42,4 +42,7 @@ interface ScheduleDao {
 
     @Query("DELETE FROM schedule WHERE medicationId = :medicationId")
     suspend fun deleteByMedicationId(medicationId: Long)
+
+    @Query("DELETE FROM schedule")
+    suspend fun clearAll()
 }

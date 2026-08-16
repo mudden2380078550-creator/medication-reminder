@@ -58,4 +58,11 @@ interface MedicationRepository {
     suspend fun stockTransactionsForMedication(medicationId: Long): List<StockTransaction>
 
     suspend fun insertFixtureEvent(stock: MilliUnits, dose: MilliUnits): Long
+
+    suspend fun replaceAll(
+        medications: List<Medication>,
+        schedules: List<MedicationSchedule>,
+        events: List<DoseEvent>,
+        transactions: List<StockTransaction>
+    )
 }

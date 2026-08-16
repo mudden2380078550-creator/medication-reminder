@@ -19,7 +19,11 @@ import androidx.compose.ui.unit.dp
 import org.openmeds.reminder.settings.ReminderSettings
 
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
+fun SettingsScreen(
+    viewModel: SettingsViewModel,
+    onExport: () -> Unit = {},
+    onImport: () -> Unit = {}
+) {
     val settings by viewModel.settings.collectAsState()
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("设置", style = MaterialTheme.typography.headlineSmall)
@@ -29,6 +33,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         Spacer(Modifier.height(12.dp))
         Text("补药提醒时间：${settings.lowStockTime}", style = MaterialTheme.typography.bodyLarge)
         Text("（库存预计不足 7 天时，每天在该时间提醒补药）", style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(24.dp))
+        BackupUi(onExport = onExport, onImport = onImport)
     }
 }
 

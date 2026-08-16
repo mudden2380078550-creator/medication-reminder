@@ -27,6 +27,15 @@ fun MedicationPlanInput.toMedicationEntity(): MedicationEntity = MedicationEntit
     isActive = true
 )
 
+fun Medication.toEntity(): MedicationEntity = MedicationEntity(
+    id = id,
+    name = name,
+    unit = unit,
+    stockMilliUnits = stock.value,
+    note = note,
+    isActive = isActive
+)
+
 fun MedicationPlanInput.toScheduleEntity(medicationId: Long): ScheduleEntity {
     val ruleType = when (rule) {
         is ScheduleRule.Daily -> ScheduleRuleCode.DAILY
@@ -50,6 +59,48 @@ fun MedicationPlanInput.toScheduleEntity(medicationId: Long): ScheduleEntity {
 
 fun MedicationSchedule.timeEntities(): List<ScheduleTimeEntity> =
     rule.times().map { ScheduleTimeEntity(scheduleId = id, minuteOfDay = DbConverters.minuteOfDay(it)) }
+
+fun MedicationSchedule.toScheduleEntity(): ScheduleEntity {
+    val ruleType = when (rule) {
+        is ScheduleRule.Daily -> ScheduleRuleCode.DAILY
+        is ScheduleRule.Weekly -> ScheduleRuleCode.WEEKLY
+        is ScheduleRule.EveryNDays -> ScheduleRuleCode.EVERY_N_DAYS
+    }
+    val weekdayMask = (rule as? ScheduleRule.Weekly)?.let { WeekdayMask.toMask(it.days) } ?: 0
+    val intervalDays = (rule as? ScheduleRule.EveryNDays)?.intervalDays ?: 0
+    val anchorEpochDay = (rule as? ScheduleRule.EveryNDays)?.anchorDate?.toEpochDay() ?: 0L
+    return ScheduleEntity(
+        id = id,
+        medicationId = medicationId,
+        doseMilliUnits = dose.value,
+        ruleType = ruleType,
+        weekdayMask = weekdayMask,
+        intervalDays = intervalDays,
+        anchorEpochDay = anchorEpochDay,
+        startEpochDay = startDate.toEpochDay(),
+        endEpochDay = endDate?.toEpochDay()
+    )
+}
+
+fun DoseEvent.toEntity(): DoseEventEntity = DoseEventEntity(
+    id = id,
+    medicationId = medicationId,
+    scheduleId = scheduleId,
+    doseMilliUnits = dose.value,
+    scheduledAtEpochMilli = scheduledAt.toEpochMilli(),
+    state = state.name,
+    actedAtEpochMilli = actedAt?.toEpochMilli(),
+    reminderCount = reminderCount
+)
+
+fun StockTransaction.toEntity(): StockTransactionEntity = StockTransactionEntity(
+    id = id,
+    medicationId = medicationId,
+    doseEventId = doseEventId,
+    deltaMilliUnits = delta.value,
+    occurredAtEpochMilli = occurredAt.toEpochMilli(),
+    reason = reason.name
+)
 
 fun ScheduleWithTimes.toDomain(): MedicationSchedule {
     val times = times.map { DbConverters.toLocalTime(it.minuteOfDay) }

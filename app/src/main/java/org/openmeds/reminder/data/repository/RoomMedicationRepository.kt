@@ -19,6 +19,7 @@ import org.openmeds.reminder.data.db.ScheduleTimeEntity
 import org.openmeds.reminder.data.db.StockTransactionDao
 import org.openmeds.reminder.data.db.StockTransactionFactory
 import org.openmeds.reminder.data.db.toDomain
+import org.openmeds.reminder.data.db.toEntity
 import org.openmeds.reminder.data.db.toMedicationEntity
 import org.openmeds.reminder.data.db.toScheduleEntity
 import org.openmeds.reminder.data.db.times
@@ -241,6 +242,29 @@ class RoomMedicationRepository(
             scheduleDao.insertTime(
                 ScheduleTimeEntity(scheduleId = scheduleId, minuteOfDay = DbConverters.minuteOfDay(time))
             )
+        }
+    }
+
+    override suspend fun replaceAll(
+        medications: List<Medication>,
+        schedules: List<MedicationSchedule>,
+        events: List<DoseEvent>,
+        transactions: List<StockTransaction>
+    ) {
+        database.withTransaction {
+            medicationDao.clearAll()
+            scheduleDao.clearAll()
+            doseEventDao.clearAll()
+            stockTransactionDao.clearAll()
+            medications.forEach { medicationDao.insert(it.toEntity()) }
+            schedules.forEach { schedule ->
+                val scheduleId = scheduleDao.insert(schedule.toScheduleEntity())
+                schedule.rule.times().forEach { time ->
+                    scheduleDao.insertTime(ScheduleTimeEntity(scheduleId = scheduleId, minuteOfDay = DbConverters.minuteOfDay(time)))
+                }
+            }
+            events.forEach { doseEventDao.insert(it.toEntity()) }
+            transactions.forEach { stockTransactionDao.insert(it.toEntity()) }
         }
     }
 

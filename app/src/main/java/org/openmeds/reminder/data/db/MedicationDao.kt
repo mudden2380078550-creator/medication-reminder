@@ -34,4 +34,7 @@ interface MedicationDao {
 
     @Query("UPDATE medication SET isActive = 0 WHERE id = :id")
     suspend fun deactivate(id: Long)
+
+    @Query("DELETE FROM medication")
+    suspend fun clearAll()
 }

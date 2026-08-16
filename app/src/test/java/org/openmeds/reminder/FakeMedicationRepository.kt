@@ -190,4 +190,19 @@ class FakeMedicationRepository : MedicationRepository {
 
     override suspend fun insertFixtureEvent(stock: MilliUnits, dose: MilliUnits): Long =
         throw UnsupportedOperationException("Not used in JVM tests")
+
+    override suspend fun replaceAll(
+        medications: List<Medication>,
+        schedules: List<MedicationSchedule>,
+        events: List<DoseEvent>,
+        transactions: List<StockTransaction>
+    ) {
+        this.medications.clear()
+        this.schedules.clear()
+        this.events.clear()
+        this.stockTransactions.clear()
+        medications.forEach { this.medications[it.id] = it }
+        schedules.forEach { this.schedules[it.id] = it }
+        events.forEach { this.events[it.id] = it }
+    }
 }

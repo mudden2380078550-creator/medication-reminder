@@ -1,5 +1,7 @@
 package org.openmeds.reminder.ui.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -12,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -19,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.openmeds.reminder.AppContainer
+import org.openmeds.reminder.reminder.ReminderRescheduleReason
 import org.openmeds.reminder.ui.editor.MedicationEditorScreen
 import org.openmeds.reminder.ui.editor.MedicationEditorViewModel
 import org.openmeds.reminder.ui.history.HistoryScreen
@@ -72,7 +77,23 @@ composable(AppDestination.HISTORY.route) {
 }
 composable(AppDestination.SETTINGS.route) {
     val viewModel = remember { SettingsViewModel(container.reminderPreferences) }
-    SettingsScreen(viewModel = viewModel)
+    val scope = rememberCoroutineScope()
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { scope.launch { container.backupService.export(it) } }
+    }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let {
+            scope.launch {
+                container.backupService.importAndRestore(it)
+                container.reminderOrchestrator.rescheduleAll(ReminderRescheduleReason.RESTORE)
+            }
+        }
+    }
+    SettingsScreen(
+        viewModel = viewModel,
+        onExport = { exportLauncher.launch("安心服药备份.json") },
+        onImport = { importLauncher.launch(arrayOf("application/json")) }
+    )
 }
 composable(EDITOR_ROUTE) {
     MedicationEditorScreen(

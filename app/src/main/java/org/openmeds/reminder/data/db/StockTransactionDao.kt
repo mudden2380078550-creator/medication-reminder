@@ -15,4 +15,7 @@ interface StockTransactionDao {
 
     @Query("SELECT * FROM stock_transaction WHERE medicationId = :medicationId ORDER BY occurredAtEpochMilli ASC")
     fun observeForMedication(medicationId: Long): Flow<List<StockTransactionEntity>>
+
+    @Query("DELETE FROM stock_transaction")
+    suspend fun clearAll()
 }
