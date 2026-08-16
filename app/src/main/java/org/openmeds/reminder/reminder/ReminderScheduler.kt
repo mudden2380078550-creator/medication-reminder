@@ -13,4 +13,6 @@ interface ReminderScheduler {
     fun cancelEvent(eventId: Long)
 
     fun scheduleLowStock(medicationId: Long, at: Instant)
+
+    fun cancelLowStock(medicationId: Long)
 }

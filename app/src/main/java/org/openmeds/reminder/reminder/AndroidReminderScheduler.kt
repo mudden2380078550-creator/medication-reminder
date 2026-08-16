@@ -31,7 +31,14 @@ class AndroidReminderScheduler(
     }
 
     override fun scheduleLowStock(medicationId: Long, at: Instant) {
-        schedule(at.toEpochMilli(), medicationId, AlarmKind.LOW_STOCK, exact = false)
+        val alarmManager = context.getSystemService(AlarmManager::class.java)
+        val pendingIntent = pendingIntentFactory.lowStockPendingIntent(context, medicationId)
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at.toEpochMilli(), pendingIntent)
+    }
+
+    override fun cancelLowStock(medicationId: Long) {
+        val alarmManager = context.getSystemService(AlarmManager::class.java)
+        alarmManager.cancel(pendingIntentFactory.lowStockPendingIntent(context, medicationId))
     }
 
     private fun schedule(triggerAtMillis: Long, eventId: Long, kind: AlarmKind, exact: Boolean) {

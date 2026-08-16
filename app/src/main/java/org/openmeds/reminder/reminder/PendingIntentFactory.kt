@@ -20,8 +20,20 @@ class PendingIntentFactory {
         )
     }
 
+    fun lowStockPendingIntent(context: Context, medicationId: Long): PendingIntent {
+        val intent = Intent(context, LowStockReceiver::class.java)
+            .putExtra(EXTRA_MEDICATION_ID, medicationId)
+        return PendingIntent.getBroadcast(
+            context,
+            requestCode(medicationId, AlarmKind.LOW_STOCK),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     companion object {
         const val EXTRA_EVENT_ID = "org.openmeds.reminder.extra.EVENT_ID"
         const val EXTRA_ALARM_KIND = "org.openmeds.reminder.extra.ALARM_KIND"
+        const val EXTRA_MEDICATION_ID = "org.openmeds.reminder.extra.MEDICATION_ID"
     }
 }

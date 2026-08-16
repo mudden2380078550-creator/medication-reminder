@@ -189,6 +189,7 @@ class FakeReminderScheduler(var now: Instant) : ReminderScheduler {
     val finalizes = mutableMapOf<Long, Instant>()
     val cancelled = mutableListOf<Long>()
     val lowStockAlarms = mutableMapOf<Long, Instant>()
+    val cancelledLowStock = mutableListOf<Long>()
 
     override fun scheduleDose(event: DoseEvent) {
         scheduledDoses.add(event)
@@ -210,6 +211,11 @@ class FakeReminderScheduler(var now: Instant) : ReminderScheduler {
 
     override fun scheduleLowStock(medicationId: Long, at: Instant) {
         lowStockAlarms[medicationId] = at
+    }
+
+    override fun cancelLowStock(medicationId: Long) {
+        lowStockAlarms.remove(medicationId)
+        cancelledLowStock.add(medicationId)
     }
 
     val retryMinutesAfterNow: List<Long>

@@ -31,12 +31,10 @@ class MedicationEditorScreenTest {
 
     @Test
     fun addMedicationTitleIsVisible() {
+        val viewModel = MedicationEditorViewModel(ScreenFakeRepository(), ScreenFakeRescheduler(), null)
         composeTestRule.setContent {
             MedicationReminderTheme {
-                MedicationEditorScreen(
-                    viewModel = MedicationEditorViewModel(ScreenFakeRepository(), ScreenFakeRescheduler(), null),
-                    onDone = {}
-                )
+                MedicationEditorScreen(viewModel = viewModel, onDone = {})
             }
         }
         composeTestRule.onNodeWithText("添加药品").assertIsDisplayed()

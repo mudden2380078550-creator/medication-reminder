@@ -17,6 +17,7 @@ import org.openmeds.reminder.reminder.ReminderCapabilityChecker
 import org.openmeds.reminder.reminder.ReminderNotifier
 import org.openmeds.reminder.reminder.ReminderOrchestrator
 import org.openmeds.reminder.reminder.ReminderScheduler
+import org.openmeds.reminder.reminder.LowStockPlanner
 import org.openmeds.reminder.reminder.ScheduleEventPlanner
 import org.openmeds.reminder.reminder.SystemZoneProvider
 import org.openmeds.reminder.reminder.ZoneProvider
@@ -69,5 +70,12 @@ class AppContainer(context: Context) {
         planner = eventPlanner,
         zoneProvider = zoneProvider,
         scheduleEngine = scheduleEngine
+    )
+
+    val lowStockPlanner: LowStockPlanner = LowStockPlanner(
+        repository = medicationRepository,
+        forecaster = inventoryForecaster,
+        scheduler = scheduler,
+        preferences = reminderPreferences
     )
 }
