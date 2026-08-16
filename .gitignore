@@ -6,5 +6,7 @@ outputs/
 .kotlin/
 .idea/
 local.properties
+keystore.properties
+keystore/
 build/
 **/build/
