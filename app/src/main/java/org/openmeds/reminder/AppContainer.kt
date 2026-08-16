@@ -44,7 +44,7 @@ class AppContainer(context: Context) {
 
     val capabilityChecker: ReminderCapabilityChecker = ReminderCapabilityChecker(context)
 
-    val notifier: ReminderNotifier = DoseNotificationController(context, medicationRepository)
+    val notifier: ReminderNotifier = DoseNotificationController(context, medicationRepository, capabilityChecker)
 
     val scheduler: ReminderScheduler = AndroidReminderScheduler(
         context = context,

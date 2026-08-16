@@ -16,7 +16,7 @@ class ReminderOrchestrator(
     private val zoneProvider: ZoneProvider,
     private val scheduleEngine: ScheduleEngine,
     private val clock: Clock = Clock.systemDefaultZone()
-) {
+) : ReminderActionCoordinator {
 
     suspend fun onInitialAlarm(eventId: Long, firedAt: Instant) {
         val event = repository.event(eventId) ?: return
@@ -39,7 +39,7 @@ class ReminderOrchestrator(
         }
     }
 
-    suspend fun onSnoozed(eventId: Long, actedAt: Instant) {
+    override suspend fun onSnoozed(eventId: Long, actedAt: Instant) {
         val event = repository.event(eventId) ?: return
         if (event.state != DoseState.SNOOZED) return
         scheduler.cancelEvent(eventId)
@@ -54,7 +54,7 @@ class ReminderOrchestrator(
         repository.markUnconfirmedIfActionable(eventId, firedAt)
     }
 
-    suspend fun onHandled(eventId: Long) {
+    override suspend fun onHandled(eventId: Long) {
         scheduler.cancelEvent(eventId)
     }
 

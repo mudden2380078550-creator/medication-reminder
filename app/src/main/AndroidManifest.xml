@@ -19,8 +19,20 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.reminder.ReminderActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.MedicationReminder" />
+
         <receiver
             android:name=".reminder.AlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".reminder.DoseActionReceiver"
             android:exported="false" />
 
         <receiver
