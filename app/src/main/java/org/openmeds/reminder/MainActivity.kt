@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             MedicationReminderTheme {
-                AppNavHost(homeViewModel = homeViewModel)
+                AppNavHost(homeViewModel = homeViewModel, container = container)
             }
         }
     }

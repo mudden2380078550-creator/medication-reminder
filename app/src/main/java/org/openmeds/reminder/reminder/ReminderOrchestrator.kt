@@ -16,7 +16,7 @@ class ReminderOrchestrator(
     private val zoneProvider: ZoneProvider,
     private val scheduleEngine: ScheduleEngine,
     private val clock: Clock = Clock.systemDefaultZone()
-) : ReminderActionCoordinator {
+) : ReminderActionCoordinator, ScheduleRescheduler {
 
     suspend fun onInitialAlarm(eventId: Long, firedAt: Instant) {
         val event = repository.event(eventId) ?: return
@@ -58,7 +58,7 @@ class ReminderOrchestrator(
         scheduler.cancelEvent(eventId)
     }
 
-    suspend fun rescheduleAll(reason: ReminderRescheduleReason) {
+    override suspend fun rescheduleAll(reason: ReminderRescheduleReason) {
         val zone = zoneProvider.current()
         val now = clock.instant()
         for (schedule in repository.schedules()) {

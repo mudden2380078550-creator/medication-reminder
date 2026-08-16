@@ -32,7 +32,8 @@ import org.openmeds.reminder.ui.theme.TextSecondary
 fun HomeScreen(
     state: HomeUiState,
     onConfirmNextDose: (Long) -> Unit,
-    onAddMedication: () -> Unit
+    onAddMedication: () -> Unit,
+    onMedicationClick: (Long) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -50,7 +51,7 @@ fun HomeScreen(
             }
             item { NextDoseCard(state.nextDose, onConfirmNextDose) }
             items(state.medicationCards, key = { it.medicationId }) { card ->
-                MedicationCardView(card)
+                MedicationCardView(card, onClick = { onMedicationClick(card.medicationId) })
             }
             item {
                 Button(
@@ -93,8 +94,8 @@ private fun NextDoseCard(nextDose: DoseEvent?, onConfirm: (Long) -> Unit) {
 }
 
 @Composable
-private fun MedicationCardView(card: MedicationCard) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun MedicationCardView(card: MedicationCard, onClick: () -> Unit) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(16.dp)) {
             if (card.isLowStock) {
                 Box(modifier = Modifier.width(4.dp).height(72.dp).background(AmberWarning, RoundedCornerShape(2.dp)))

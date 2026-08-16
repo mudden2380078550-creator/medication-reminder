@@ -18,7 +18,7 @@ class HomeScreenTest {
     fun addMedicationButtonReachesMinimumTouchTarget() {
         composeTestRule.setContent {
             MedicationReminderTheme {
-                HomeScreen(state = HomeUiState(), onConfirmNextDose = {}, onAddMedication = {})
+                HomeScreen(state = HomeUiState(), onConfirmNextDose = {}, onAddMedication = {}, onMedicationClick = {})
             }
         }
         composeTestRule.onNodeWithText("添加药品").assertIsDisplayed().assertHeightIsAtLeast(56.dp)
