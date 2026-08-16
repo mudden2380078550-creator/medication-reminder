@@ -159,6 +159,10 @@ class RoomMedicationRepository(
         doseEventDao.markUnconfirmed(eventId, at.toEpochMilli())
     }
 
+    override suspend fun setReminderCount(eventId: Long, count: Int) {
+        doseEventDao.setReminderCount(eventId, count)
+    }
+
     override suspend fun medication(eventId: Long): Medication? {
         val event = doseEventDao.byId(eventId) ?: return null
         return medicationDao.byId(event.medicationId)?.toDomain()

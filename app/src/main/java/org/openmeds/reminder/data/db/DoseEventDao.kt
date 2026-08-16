@@ -22,6 +22,9 @@ interface DoseEventDao {
     @Query("UPDATE dose_event SET state = 'UNCONFIRMED', actedAtEpochMilli = :at WHERE id = :id AND state IN ('PENDING','SNOOZED')")
     suspend fun markUnconfirmed(id: Long, at: Long): Int
 
+    @Query("UPDATE dose_event SET reminderCount = :count WHERE id = :id")
+    suspend fun setReminderCount(id: Long, count: Int)
+
     @Query("SELECT * FROM dose_event WHERE state IN ('PENDING','SNOOZED') ORDER BY scheduledAtEpochMilli ASC")
     suspend fun actionablePending(): List<DoseEventEntity>
 

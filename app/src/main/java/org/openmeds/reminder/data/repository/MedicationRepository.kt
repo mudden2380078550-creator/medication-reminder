@@ -39,6 +39,8 @@ interface MedicationRepository {
 
     suspend fun markUnconfirmedIfActionable(eventId: Long, at: Instant)
 
+    suspend fun setReminderCount(eventId: Long, count: Int)
+
     suspend fun medication(eventId: Long): Medication?
 
     suspend fun medicationById(medicationId: Long): Medication?
